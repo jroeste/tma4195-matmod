@@ -15,15 +15,15 @@ def one_step_upwind(s_vector, u, k, phi, h, f_func, g_func, mu_g, mu_w, a, w):
     return (new_s)
 
 def one_step_central(s_vector, u, k, phi, h, f_func, g_func, mu_g, mu_w, a, w, boundary):
-    w1 = g_func(s_vector[1:-1], mu_g, mu_w, a) * (s_vector[2:] - 2 * s_vector[1:-1] + s_vector[:-2])/h**2
-    w2 = (g_func(s_vector[2:], mu_g, mu_w, a) - g_func(s_vector[:-2], mu_g, mu_w, a)) * \
-         (s_vector[2:] - s_vector[:-2]) / (4*h**2)
+    g = g_func(s_vector, mu_g, mu_w, a)
+    g[0] = g[-1] =0
+    w1 = g[1:-1] * (s_vector[2:] - 2 * s_vector[1:-1] + s_vector[:-2]) / h ** 2
+    w2 = (g[2:] - g[:-2]) * (s_vector[2:] - s_vector[:-2]) / (4*h**2)
     f_diff = (f_func(s_vector[1:], mu_g, mu_w) - f_func(s_vector[:-1], mu_g, mu_w)) / h
     s_vector[1:] = s_vector[1:] - (u * k / phi) * f_diff
     s_vector[1:-1] = s_vector[1:-1] - (k / phi) * (w1 + w2)
     if boundary == 'open':
         s_vector[0] = s_vector[1] + (s_vector[1] - s_vector[2])*h
-        s_vector[-1] = s_vector[-2] + (s_vector[-2] - s_vector[-3]) * h
     else:
         s_vector[0] = 1
     s_vector[-1] = s_vector[-2] + (s_vector[-2] - s_vector[-3]) * h

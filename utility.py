@@ -3,8 +3,6 @@ import numpy as np
 def f_function(s, mu_g, mu_w):
     return s/(s*(1-mu_g/mu_w)+ mu_g/mu_w)
 
-
-
 def g_function(s, mu_g, mu_w, a):
     return a*s*(1-s)/(s*(1-mu_g/mu_w) + mu_g/mu_w)
 

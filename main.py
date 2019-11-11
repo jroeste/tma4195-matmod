@@ -6,12 +6,14 @@ import matplotlib.pyplot as plt
 
 
 # Total time is timeSteps * k
-timeSteps = 50000
+# 1000 steps for slow plot in 7
+# 150000 steps for fast plot in 7
+timeSteps = 5000
 
 # Total space is spaceSteps * h
 spaceSteps = 101
 
-case = "task7" # "task17"
+case = "task17" # "task17"
 
 if case == "task7":
     u = 0.1 # speed
@@ -33,9 +35,8 @@ elif case == "task17":
 
 
 w = np.zeros(len(s_matrix[0]))
-animationInterval = 10
+animationInterval = 5
 s_matrix = ut.upwind(s_matrix, timeSteps, u, k, pm.phi, h, pm.mu_g, pm.mu_w, K * dp_c / pm.mu_w, w, boundary = boundary)
-pl.plotting_7(s_matrix, spaceSteps, timeSteps, animationInterval, h, k) # plotting_7 or plotting_17
-
+pl.plotting_17(s_matrix, spaceSteps, timeSteps, animationInterval, h, k,"slow") # plotting_7 or plotting_17
 
 

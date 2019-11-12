@@ -87,24 +87,23 @@ def plotting_17(s_matrix, spaceSteps, timeSteps, interval, h, k,save_to_gif):
         return line, filling_blue, filling_grey, time_text,
 
     def animate_to_gif(i):
-        scalar = 20
+        scalar = 100
         y = s_matrix[i*scalar]
         line.set_ydata(y)
-        if i*scalar % 100 == 0:
-            time_text.set_text('t = ' + str(round(scalar*i * k, 2)))
+        time_text.set_text('t = ' + str(round(scalar*i * k, 2)))
         filling_grey = plt.fill_between(x, y, 0, facecolors='silver')
         filling_blue = plt.fill_between(x, y, 1, facecolors='lightblue')
         return line, filling_blue, filling_grey, time_text,
 
     if save_to_gif=="slow":
         ani_to_gif = animation.FuncAnimation(fig, animate_to_gif, init_func=init, interval=interval, blit=True,
-                                             save_count=timeSteps/20)
+                                             save_count=timeSteps/100)
         save_animations(ani_to_gif, "anim_task17")
     else:
         ani = animation.FuncAnimation(fig, animate, init_func=init, interval=interval, blit=True, save_count=timeSteps)
         plt.show()
 
-def plotting_21(s_matrix, spaceSteps, timeSteps, interval, h, k, theta):
+def plotting_21(s_matrix, spaceSteps, timeSteps, interval, h, k, theta,save_to_gif):
 
     fig, ax = plt.subplots()
     x = np.linspace(0, h * (spaceSteps - 1), spaceSteps)
@@ -113,7 +112,7 @@ def plotting_21(s_matrix, spaceSteps, timeSteps, interval, h, k, theta):
     ax.set_xlabel('x')
     ax.set_ylabel('z')
     line, = ax.plot(x, s_matrix[0])
-    time_text = ax.text(0.8, 0.8, '', transform=ax.transAxes)
+    time_text = ax.text(0.1, 0.8, '', transform=ax.transAxes)
 
     def init():  # give a clean slate to start
         line.set_ydata([np.nan] * len(x))
@@ -121,19 +120,36 @@ def plotting_21(s_matrix, spaceSteps, timeSteps, interval, h, k, theta):
         return line,
 
     def animate(i):
+        scalar = 100*2
         lower = -1/10*np.tan(theta)*x
         upper = -1/10*np.tan(theta)*x + 1
-        y = s_matrix[i*100] - 1/10*np.tan(theta)*x
+        y = s_matrix[i*scalar] - 1/10*np.tan(theta)*x
         line.set_ydata(y)
-        if i % 100 == 0:
-            time_text.set_text('t = ' + str(round(i * k, 2)))
+        if i*scalar % 100 == 0:
+            time_text.set_text('t = ' + str(round(i*scalar * k, 2)))
         filling_grey = plt.fill_between(x, y, lower, facecolors='silver')
         filling_blue = plt.fill_between(x, y, upper, facecolors='lightblue')
         return line, filling_blue, filling_grey, time_text,
 
-    ani = animation.FuncAnimation(fig, animate, init_func=init, interval=interval, blit=True, save_count=timeSteps/100)
+    def animate_to_gif(i):
+        scalar = 4*100
+        lower = -1/10*np.tan(theta)*x
+        upper = -1/10*np.tan(theta)*x + 1
+        y = s_matrix[i*scalar] - 1/10*np.tan(theta)*x
+        line.set_ydata(y)
+        if i*scalar % 100 == 0:
+            time_text.set_text('t = ' + str(round(i*scalar * k, 2)))
+        filling_grey = plt.fill_between(x, y, lower, facecolors='silver')
+        filling_blue = plt.fill_between(x, y, upper, facecolors='lightblue')
+        return line, filling_blue, filling_grey, time_text,
 
-    plt.show()
+    if save_to_gif=="slow":
+        ani_to_gif = animation.FuncAnimation(fig, animate_to_gif, init_func=init, interval=interval, blit=True,
+                                             save_count=timeSteps /(4*100))
+        save_animations(ani_to_gif, "anim_task21")
+    else:
+        ani = animation.FuncAnimation(fig, animate, init_func=init, interval=interval, blit=True, save_count=timeSteps/(2*100))
+        plt.show()
 
 def plot_report_7(s_matrix, h, spaceSteps, name):
     x = np.linspace(0, h * (spaceSteps - 1), spaceSteps)
@@ -190,30 +206,3 @@ def plot_report_17(s_matrix, h, spaceSteps, name):
     plt.savefig(name)
     #plt.show()
 
-# def plotting_21(s_matrix, spaceSteps, timeSteps, interval, h, k):
-#
-#     fig, ax = plt.subplots()
-#     x = np.linspace(0, h * (spaceSteps - 1), spaceSteps)
-#     ax = plt.axes(ylim=(1, 0))
-#     ax.set_xlabel('x')
-#     ax.set_ylabel('saturation')
-#     line, = ax.plot(x, s_matrix[0])
-#     time_text = ax.text(0.8, 0.8, '', transform=ax.transAxes)
-#
-#     def init():  # give a clean slate to start
-#         line.set_ydata([np.nan] * len(x))
-#         time_text.set_text('')
-#         return line,
-#
-#     def animate(i):
-#         y = s_matrix[i]
-#         line.set_ydata(y)
-#         if i % 100 == 0:
-#             time_text.set_text('t = ' + str(round(i * k, 2)))
-#         filling_grey = plt.fill_between(x, y, 0, facecolors='silver')
-#         filling_blue = plt.fill_between(x, y, 1, facecolors='lightblue')
-#         return line, filling_blue, filling_grey, time_text,
-#
-#     ani = animation.FuncAnimation(fig, animate, init_func=init, interval=interval, blit=True, save_count=timeSteps)
-#
-#     plt.show()

@@ -38,6 +38,74 @@ def upwind_21(s_matrix, timeSteps, u, k, phi, h, mu_g, mu_w, rho_w, rho_g, K, g,
 
     return s_matrix
 
+def one_step_full_central(s_vector, u, k, phi, h, f_func, g_func, mu_g, mu_w, a, boundary):
+    g = g_func(s_vector, mu_g, mu_w, a)
+    w1 = g[1:-1] * (s_vector[2:] - 2 * s_vector[1:-1] + s_vector[:-2]) / h ** 2
+    w2 = (g[2:] - g[:-2]) * (s_vector[2:] - s_vector[:-2]) / (4*h**2)
+    f_diff = (f_func(s_vector[2:], mu_g, mu_w) - f_func(s_vector[:-2], mu_g, mu_w)) /(2 * h)
+    s_vector[1:-1] = s_vector[1:-1] - (u * k / phi) * f_diff
+    s_vector[1:-1] = s_vector[1:-1] - (k / phi) * (w1 + w2)
+    if boundary == 'open':
+        s_vector[0] = s_vector[1] + (s_vector[1] - s_vector[2])*h
+    else:
+        s_vector[0] = 1
+    s_vector[-1] = s_vector[-2] + (s_vector[-2] - s_vector[-3]) * h
+    return s_vector
+
+def full_central(s_matrix, timeSteps, u, k, phi, h, mu_g, mu_w, a, boundary):
+
+    for i in range(timeSteps-1):
+        s_matrix[i+1] = one_step_full_central(s_matrix[i], u, k, phi, h, f_function, g_function, mu_g, mu_w, a, boundary)
+
+    return s_matrix
+
+def one_step_semi_upwind(s_vector, u, k, phi, h, f_func, g_func, mu_g, mu_w, a, boundary):
+    g = g_func(s_vector, mu_g, mu_w, a)
+    g[0] = 0
+    g[-1] = 0
+    w1 = g[1:-1] * (s_vector[2:] - 2 * s_vector[1:-1] + s_vector[:-2]) / h ** 2
+    w2 = (g[1:] - g[:-1]) * (s_vector[1:] - s_vector[:-1]) / (h**2)
+    f_diff = (f_func(s_vector[1:], mu_g, mu_w) - f_func(s_vector[:-1], mu_g, mu_w)) / h
+    s_vector[1:] = s_vector[1:] - (u * k / phi) * f_diff - (k / phi) * (w2)
+    s_vector[1:-1] = s_vector[1:-1] - (k / phi) * (w1)
+    if boundary == 'open':
+        s_vector[0] = s_vector[1] + (s_vector[1] - s_vector[2])*h
+    else:
+        s_vector[0] = 1
+    s_vector[-1] = s_vector[-2] + (s_vector[-2] - s_vector[-3]) * h
+    return s_vector
+
+def semi_upwind(s_matrix, timeSteps, u, k, phi, h, mu_g, mu_w, a, boundary):
+
+    for i in range(timeSteps-1):
+        s_matrix[i+1] = one_step_semi_upwind(s_matrix[i], u, k, phi, h, f_function, g_function, mu_g, mu_w, a, boundary)
+
+    return s_matrix
+
+def one_step_full_upwind(s_vector, u, k, phi, h, f_func, g_func, mu_g, mu_w, a, boundary):
+    g = g_func(s_vector, mu_g, mu_w, a)
+    g[0] = 0
+    g[-1] = 0
+    w1 = g[2:] * (s_vector[2:] - 2 * s_vector[1:-1] + s_vector[:-2]) / h ** 2
+    w2 = (g[1:] - g[:-1]) * (s_vector[1:] - s_vector[:-1]) / (h**2)
+    f_diff = (f_func(s_vector[1:], mu_g, mu_w) - f_func(s_vector[:-1], mu_g, mu_w)) / h
+    s_vector[1:] = s_vector[1:] - (u * k / phi) * f_diff - (k / phi) * (w2)
+    s_vector[2:] = s_vector[2:] - (k / phi) * (w1)
+    if boundary == 'open':
+        s_vector[0] = s_vector[1] + (s_vector[1] - s_vector[2])*h
+    else:
+        s_vector[0] = 1
+    s_vector[-1] = s_vector[-2] + (s_vector[-2] - s_vector[-3]) * h
+    return s_vector
+
+def full_upwind(s_matrix, timeSteps, u, k, phi, h, mu_g, mu_w, a, boundary):
+
+    for i in range(timeSteps-1):
+        s_matrix[i+1] = one_step_full_upwind(s_matrix[i], u, k, phi, h, f_function, g_function, mu_g, mu_w, a, boundary)
+
+    return s_matrix
+
+
 def one_step_central(s_vector, u, k, phi, h, f_func, g_func, mu_g, mu_w, a, boundary):
     g = g_func(s_vector, mu_g, mu_w, a)
     g[0] = 0

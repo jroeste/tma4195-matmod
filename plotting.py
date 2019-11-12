@@ -42,7 +42,7 @@ def plotting_7(s_matrix, spaceSteps, timeSteps, interval, h, k, save_to_gif):
         return line, time_text,
 
     def animate_to_gif_fast(i):
-        y = s_matrix[200*i]
+        y = s_matrix[1000*i]
         line.set_ydata(y)
         time_text.set_text('t = ' + str(round(200*i * k, 2)))
         return line, time_text,
@@ -54,7 +54,7 @@ def plotting_7(s_matrix, spaceSteps, timeSteps, interval, h, k, save_to_gif):
 
     elif save_to_gif=="fast":
         ani_to_gif = animation.FuncAnimation(fig, animate_to_gif_fast, init_func=init, interval=interval, blit=True,
-                                             save_count=timeSteps / 200)
+                                             save_count=timeSteps / 1000)
         save_animations(ani_to_gif, "anim_task7_fast")
 
     else:
@@ -87,7 +87,7 @@ def plotting_17(s_matrix, spaceSteps, timeSteps, interval, h, k,save_to_gif):
         return line, filling_blue, filling_grey, time_text,
 
     def animate_to_gif(i):
-        scalar = 100
+        scalar = 2*100
         y = s_matrix[i*scalar]
         line.set_ydata(y)
         time_text.set_text('t = ' + str(round(scalar*i * k, 2)))
@@ -97,8 +97,8 @@ def plotting_17(s_matrix, spaceSteps, timeSteps, interval, h, k,save_to_gif):
 
     if save_to_gif=="slow":
         ani_to_gif = animation.FuncAnimation(fig, animate_to_gif, init_func=init, interval=interval, blit=True,
-                                             save_count=timeSteps/100)
-        save_animations(ani_to_gif, "anim_task17")
+                                             save_count=timeSteps/(2*100))
+        save_animations(ani_to_gif, "anim_task17_1")
     else:
         ani = animation.FuncAnimation(fig, animate, init_func=init, interval=interval, blit=True, save_count=timeSteps)
         plt.show()
@@ -132,7 +132,7 @@ def plotting_21(s_matrix, spaceSteps, timeSteps, interval, h, k, theta,save_to_g
         return line, filling_blue, filling_grey, time_text,
 
     def animate_to_gif(i):
-        scalar = 4*100
+        scalar = 40*100
         lower = -1/10*np.tan(theta)*x
         upper = -1/10*np.tan(theta)*x + 1
         y = s_matrix[i*scalar] - 1/10*np.tan(theta)*x
@@ -145,7 +145,7 @@ def plotting_21(s_matrix, spaceSteps, timeSteps, interval, h, k, theta,save_to_g
 
     if save_to_gif=="slow":
         ani_to_gif = animation.FuncAnimation(fig, animate_to_gif, init_func=init, interval=interval, blit=True,
-                                             save_count=timeSteps /(4*100))
+                                             save_count=timeSteps /(40*100))
         save_animations(ani_to_gif, "anim_task21")
     else:
         ani = animation.FuncAnimation(fig, animate, init_func=init, interval=interval, blit=True, save_count=timeSteps/(2*100))
@@ -171,7 +171,6 @@ def plot_report_7(s_matrix, h, spaceSteps, name):
 
     #plt.savefig(name)
     plt.show()
-
 
 def plot_report_17(s_matrix, h, spaceSteps, name):
     x = np.linspace(0, h * (spaceSteps - 1), spaceSteps)
@@ -206,3 +205,54 @@ def plot_report_17(s_matrix, h, spaceSteps, name):
     plt.savefig(name)
     #plt.show()
 
+def plot_report_21(s_matrix, h, spaceSteps, name, theta,timeSteps,k):
+
+    x = np.linspace(0, h * (spaceSteps - 1), spaceSteps)
+    fig, axs = plt.subplots(1,4,figsize = (15,4),sharey = True)
+    time_0 = 0*k
+    axs[0].set_xlim([-1.5, 12])
+    axs[0].set_ylim([1, 0 - 1 / 10 * x[-1] * np.tan(theta)])
+    y = s_matrix[0]-1/10*np.tan(theta)*x
+    axs[0].plot(x, y)
+    axs[0].fill_between(x, y, -1/10*np.tan(theta)*x, facecolors='silver')
+    axs[0].fill_between(x, y, 1-1/10*np.tan(theta)*x, facecolors='lightblue')
+    axs[0].set_title("t = "+str(time_0)+" s")
+    axs[0].set_xlabel('x')
+    axs[0].set_ylabel('S + x/X * tan(theta)')
+    axs[0].grid()
+
+    axs[1].set_xlim([-1.5, 12])
+    axs[1].set_ylim([1, 0 - 1 / 10 * x[-1] * np.tan(theta)])
+    time_0 = 20000*k
+    y = s_matrix[20000] - 1 / 10 * np.tan(theta) * x
+    axs[1].plot(x, y)
+    axs[1].fill_between(x, y, - 1 / 10 * np.tan(theta) * x , facecolors='silver')
+    axs[1].fill_between(x, y, 1 - 1 / 10 * np.tan(theta) * x, facecolors='lightblue')
+    axs[1].set_title("t = "+str(time_0)+" s")
+    axs[1].set_xlabel('x')
+    axs[1].grid()
+
+    axs[2].set_xlim([-1.5, 12])
+    axs[2].set_ylim([1, 0 - 1 / 10 * x[-1] * np.tan(theta)])
+    time_0 = 65000* k
+    y = s_matrix[65000] - 1 / 10 * np.tan(theta) * x
+    axs[2].plot(x, y)
+    axs[2].fill_between(x, y, - 1 / 10 * np.tan(theta) * x, facecolors='silver')
+    axs[2].fill_between(x, y, 1 - 1 / 10 * np.tan(theta) * x, facecolors='lightblue')
+    axs[2].set_title("t = "+str(time_0)+" s")
+    axs[2].set_xlabel('x')
+    axs[2].grid()
+
+    axs[3].set_xlim([-1.5, 12])
+    axs[3].set_ylim([1, 0 - 1 / 10 * x[-1] * np.tan(theta)])
+    time_0 = timeSteps*k
+    y = s_matrix[-1] - 1 / 10 * np.tan(theta) * x
+    axs[3].plot(x, y)
+    axs[3].fill_between(x, y,- 1 / 10 * np.tan(theta) * x , facecolors='silver')
+    axs[3].fill_between(x, y, 1- 1 / 10 * np.tan(theta) * x, facecolors='lightblue')
+    axs[3].set_title("t = "+str(time_0)+" s")
+    axs[3].set_xlabel('x')
+    axs[3].grid()
+
+
+    plt.savefig(name)

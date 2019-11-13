@@ -24,4 +24,7 @@ mu_w=5e-4
 rho_g = 700
 rho_w = 997
 
+# Gravity
+g = 9.81
+
 

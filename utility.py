@@ -9,7 +9,7 @@ def g_21(s, mu_g, mu_w, rho_g, rho_w, g, K):
 def g_function(s, mu_g, mu_w, a):
     return a*s*(1-s)/(s*(1-mu_g/mu_w) + mu_g/mu_w)
 
-def one_step_central_21(s_vector, u, k, phi, h, f_func, g_func, mu_g, mu_w, rho_w, rho_g, K, g, H, theta, boundary):
+def one_step_central_21(s_vector, u, k, phi, h, f_func, g_func, mu_g, mu_w, K, dp_c, boundary, rho_w, rho_g, g, H, theta):
     g = g_func(s_vector, mu_g, mu_w, rho_g, rho_w, g, K)
     g[0] = 0
     g[-1] = 0
@@ -31,34 +31,6 @@ def one_step_central_21(s_vector, u, k, phi, h, f_func, g_func, mu_g, mu_w, rho_
     s_vector = s_vector.clip(0)
     return s_vector
 
-def upwind_21(s_matrix, timeSteps, u, k, phi, h, mu_g, mu_w, rho_w, rho_g, K, g, H, theta, boundary):
-
-    for i in range(timeSteps-1):
-        s_matrix[i+1] = one_step_central_21(s_matrix[i], u, k, phi, h, f_function, g_21, mu_g, mu_w, rho_w, rho_g, K, g, H, theta, boundary)
-
-    return s_matrix
-
-def one_step_full_central(s_vector, u, k, phi, h, f_func, g_func, mu_g, mu_w, a, boundary):
-    g = g_func(s_vector, mu_g, mu_w, a)
-    w1 = g[1:-1] * (s_vector[2:] - 2 * s_vector[1:-1] + s_vector[:-2]) / h ** 2
-    w2 = (g[2:] - g[:-2]) * (s_vector[2:] - s_vector[:-2]) / (4*h**2)
-    f_diff = (f_func(s_vector[2:], mu_g, mu_w) - f_func(s_vector[:-2], mu_g, mu_w)) /(2 * h)
-    s_vector[1:-1] = s_vector[1:-1] - (u * k / phi) * f_diff
-    s_vector[1:-1] = s_vector[1:-1] - (k / phi) * (w1 + w2)
-    if boundary == 'open':
-        s_vector[0] = s_vector[1] + (s_vector[1] - s_vector[2])*h
-    else:
-        s_vector[0] = 1
-    s_vector[-1] = s_vector[-2] + (s_vector[-2] - s_vector[-3]) * h
-    return s_vector
-
-def full_central(s_matrix, timeSteps, u, k, phi, h, mu_g, mu_w, a, boundary):
-
-    for i in range(timeSteps-1):
-        s_matrix[i+1] = one_step_full_central(s_matrix[i], u, k, phi, h, f_function, g_function, mu_g, mu_w, a, boundary)
-
-    return s_matrix
-
 def one_step_semi_upwind(s_vector, u, k, phi, h, f_func, g_func, mu_g, mu_w, a, boundary):
     g = g_func(s_vector, mu_g, mu_w, a)
     g[0] = 0
@@ -74,13 +46,6 @@ def one_step_semi_upwind(s_vector, u, k, phi, h, f_func, g_func, mu_g, mu_w, a, 
         s_vector[0] = 1
     s_vector[-1] = s_vector[-2] + (s_vector[-2] - s_vector[-3]) * h
     return s_vector
-
-def semi_upwind(s_matrix, timeSteps, u, k, phi, h, mu_g, mu_w, a, boundary):
-
-    for i in range(timeSteps-1):
-        s_matrix[i+1] = one_step_semi_upwind(s_matrix[i], u, k, phi, h, f_function, g_function, mu_g, mu_w, a, boundary)
-
-    return s_matrix
 
 def one_step_full_upwind(s_vector, u, k, phi, h, f_func, g_func, mu_g, mu_w, a, boundary):
     g = g_func(s_vector, mu_g, mu_w, a)
@@ -98,15 +63,9 @@ def one_step_full_upwind(s_vector, u, k, phi, h, f_func, g_func, mu_g, mu_w, a, 
     s_vector[-1] = s_vector[-2] + (s_vector[-2] - s_vector[-3]) * h
     return s_vector
 
-def full_upwind(s_matrix, timeSteps, u, k, phi, h, mu_g, mu_w, a, boundary):
 
-    for i in range(timeSteps-1):
-        s_matrix[i+1] = one_step_full_upwind(s_matrix[i], u, k, phi, h, f_function, g_function, mu_g, mu_w, a, boundary)
-
-    return s_matrix
-
-
-def one_step_central(s_vector, u, k, phi, h, f_func, g_func, mu_g, mu_w, a, boundary):
+def one_step_central(s_vector, u, k, phi, h, f_func, g_func, mu_g, mu_w, K, dp_c, boundary, rho_w, rho_g, g, H, theta):
+    a = K * dp_c / mu_w
     g = g_func(s_vector, mu_g, mu_w, a)
     g[0] = 0
     g[-1] = 0
@@ -127,7 +86,6 @@ def initialize_1(spaceSteps, timeSteps):
     s_matrix[0]=0
     return s_matrix
 
-
 def initialize_2(spaceSteps, timeSteps):
     s_matrix = np.ones((timeSteps, spaceSteps))*0.01
     area = spaceSteps//10
@@ -144,9 +102,9 @@ def initialize_3(spaceSteps, timeSteps, h):
     s_matrix[0][:X] = 1 / 8 *np.sqrt(1 * (x[X] - x[:X]))
     return s_matrix
 
-def upwind(s_matrix, timeSteps, u, k, phi, h, mu_g, mu_w, a, boundary):
+def num_scheme(one_step_func, s_matrix, timeSteps, u, k, dp_c, phi, h, mu_g, mu_w, rho_w, rho_g, K, g, H, theta, boundary,  f_func, g_func):
 
-    for i in range(timeSteps-1):
-        s_matrix[i+1] = one_step_central(s_matrix[i], u, k, phi, h, f_function, g_function, mu_g, mu_w, a, boundary)
+    for i in range(timeSteps - 1):
+        s_matrix[i+1] = one_step_func(s_matrix[i], u, k, phi, h, f_func, g_func, mu_g, mu_w, K, dp_c, boundary, rho_w, rho_g, g, H, theta)
 
     return s_matrix
